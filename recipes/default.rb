@@ -14,7 +14,7 @@ ruby_build_ruby "#{node[:markus][:ruby_version]}" do
   # When compiling ruby with ruby-build, we have to force --enable-shared
   # --enable-shared is needed to force ruby to have shared linkable librairies
   # --enable-shared is needed in order to compile subversion ruby bindings
-  environment "--enable-shared"
+  environment "CONFIGURE_OPTS" => "--enable-shared"
 end
 
 # installing subversion for user markus
