@@ -25,7 +25,7 @@ remote_file "/home/markus/subversion-#{node[:subversion][:version]}.tar.gz" do
   group       "markus"
 end
 
-bash "Compile subversion #{node[:subversion][:version]}" do
+bash "Compile subversion #{node[:subversion][:version]} for user markus with ruby-#{node[:markus][:ruby_version]}" do
   cwd         "/home/markus"
   user        "markus"
   group       "markus"
