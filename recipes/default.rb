@@ -38,3 +38,21 @@ bash "Compile subversion #{node[:subversion][:version]} for user markus with rub
   creates "#{node[:markus][:ruby_sitedir]}/1.9.1/svn/repos.rb"
   creates "#{node[:markus][:ruby_sitedir]}/1.9.1/svn/client.rb"
 end
+
+postgresql_connection_info = {:host => "localhost",
+                              :port => node['postgresql']['config']['port'],
+                              :username => 'postgres',
+                              :password => node['postgresql']['password']['postgres']}
+
+database_user 'markus' do
+  connection postgresql_connection_info
+  password 'markus'
+  provider Chef::Provider::Database::PostgresqlUser
+  action :create
+end
+
+database 'markus_production' do
+  connection postgresql_connection_info
+  provider Chef::Provider::Database::Postgresql
+  action :create
+end
