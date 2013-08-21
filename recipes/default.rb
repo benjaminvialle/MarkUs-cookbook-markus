@@ -56,3 +56,61 @@ database 'markus_production' do
   provider Chef::Provider::Database::Postgresql
   action :create
 end
+
+postgresql_database_user 'markus' do
+  connection postgresql_connection_info
+  database_name 'markus_production'
+  privileges [:all]
+  action :grant
+end
+
+# installing latest markus
+remote_file "/home/markus/markus-#{node[:markus][:version]}.tar.gz" do
+  source "https://github.com/MarkUsProject/Markus/archive/#{node[:markus][:version]}.tar.gz"
+  action :create_if_missing
+  checksum    node[:markus][:checksum] unless node[:markus][:version] == "master"
+  user        "markus"
+  group       "markus"
+end
+
+bash "Install bundler for ruby #{node[:markus][:ruby_version]}" do
+  cwd         "/home/markus"
+  user        "markus"
+  group       "markus"
+  command     "gem install bundler"
+  creates "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
+end
+
+bash "Extract markus source code" do
+  cwd         "/home/markus"
+  user        "markus"
+  group       "markus"
+  code <<-EOH
+    tar xvzf markus-#{node[:markus][:version]}.tar.gz
+  EOH
+  creates "/home/markus/Markus-master/Gemfile"
+end
+
+template "/home/markus/Markus-#{node[:markus][:version]}/config/database.yml" do
+  source "database.postgresql.yml.erb"
+  owner "markus"
+  group "markus"
+  mode 0600
+end
+
+execute "Install Gemfile for markus" do
+  cwd         "/home/markus/Markus-#{node[:markus][:version]}"
+  user        "markus"
+  group       "markus"
+  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle install"
+  action :run
+end
+
+execute "Load schema in database" do
+  cwd         "/home/markus/Markus-#{node[:markus][:version]}"
+  user        "markus"
+  group       "markus"
+  environment "RAILS_ENV" => "production"
+  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle exec rake db:schema:load"
+  action      :nothing
+end
