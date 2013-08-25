@@ -78,7 +78,7 @@ bash "Install bundler for ruby #{node[:markus][:ruby_version]}" do
   cwd         "/home/markus"
   user        "markus"
   group       "markus"
-  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
+  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
   creates "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
 end
 
