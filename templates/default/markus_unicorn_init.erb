@@ -16,13 +16,13 @@ NAME="MarkUs-<%= node[:markus][:version] %> (Unicorn)"
 ENV="production"
 TIMEOUT=${TIMEOUT-60}
 USER=markus
-DAEMON="<%= node[:markus][:ruby_path] %>/bin/unicorn"
+DAEMON="<%= node[:markus][:ruby_path] %>/<%= node[:markus][:ruby_version] %>/bin/unicorn"
 APP_ROOT=/home/markus/Markus-<%= node[:markus][:version] %>
 PID="${APP_ROOT}/tmp/pids/markus_unicorn.pid"
 
 CONFFILE=${APP_ROOT}/config/unicorn.rb
-CMD="<%= node[:markus][:ruby_path] %>/bin/bundle"
-OPTIONS="exec  <%= node[:markus][:ruby_path] %>/bin/unicorn -D -E $ENV -c $CONFFILE"
+CMD="<%= node[:markus][:ruby_path] %>/<%= node[:markus][:ruby_version] %>/bin/bundle"
+OPTIONS="exec  <%= node[:markus][:ruby_path] %>/<%= node[:markus][:ruby_version] %>/bin/unicorn -D -E $ENV -c $CONFFILE"
 RETVAL=0
 
 # source function library
