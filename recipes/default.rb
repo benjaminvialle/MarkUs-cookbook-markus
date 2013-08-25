@@ -77,7 +77,7 @@ bash "Install bundler for ruby #{node[:markus][:ruby_version]}" do
   cwd         "/home/markus"
   user        "markus"
   group       "markus"
-  command     "gem install bundler"
+  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
   creates "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
 end
 
@@ -91,26 +91,10 @@ bash "Extract markus source code" do
   creates "/home/markus/Markus-master/Gemfile"
 end
 
-template "/home/markus/Markus-#{node[:markus][:version]}/config/database.yml" do
-  source "database.postgresql.yml.erb"
-  owner "markus"
-  group "markus"
-  mode 0600
-end
-
 execute "Install Gemfile for markus" do
   cwd         "/home/markus/Markus-#{node[:markus][:version]}"
   user        "markus"
   group       "markus"
   command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle install"
   action :run
-end
-
-execute "Load schema in database" do
-  cwd         "/home/markus/Markus-#{node[:markus][:version]}"
-  user        "markus"
-  group       "markus"
-  environment "RAILS_ENV" => "production"
-  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle exec rake db:schema:load"
-  action      :nothing
 end
