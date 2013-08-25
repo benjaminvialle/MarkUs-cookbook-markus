@@ -61,7 +61,7 @@ template "/etc/init.d/markus" do
   source "markus_unicorn_init.erb"
   owner "markus"
   group "markus"
-  mode 0600
+  mode 0755
 end
 
 template "/etc/nginx/sites-available/markus" do
