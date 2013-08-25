@@ -74,11 +74,12 @@ remote_file "/home/markus/markus-#{node[:markus][:version]}.tar.gz" do
   group       "markus"
 end
 
-bash "Install bundler for ruby #{node[:markus][:ruby_version]}" do
+execute "Install bundler for ruby #{node[:markus][:ruby_version]}" do
   cwd         "/home/markus"
   user        "markus"
   group       "markus"
-  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
+  environment "PATH=" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin"
+  command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
   creates "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
 end
 
