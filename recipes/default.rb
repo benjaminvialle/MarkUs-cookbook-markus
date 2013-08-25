@@ -54,6 +54,7 @@ end
 database 'markus_production' do
   connection postgresql_connection_info
   provider Chef::Provider::Database::Postgresql
+  owner 'markus'
   action :create
 end
 
