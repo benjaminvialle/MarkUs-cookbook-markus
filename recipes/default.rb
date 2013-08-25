@@ -78,7 +78,7 @@ execute "Install bundler for ruby #{node[:markus][:ruby_version]}" do
   cwd         "/home/markus"
   user        "markus"
   group       "markus"
-  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH"
+  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
   command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler --no-rdoc --no-ri"
   creates     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
   action      :run
@@ -98,7 +98,7 @@ execute "Install Gemfile for markus" do
   cwd         "/home/markus/Markus-#{node[:markus][:version]}"
   user        "markus"
   group       "markus"
-  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH"
+  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
   command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle install"
   action :run
 end
