@@ -78,9 +78,10 @@ execute "Install bundler for ruby #{node[:markus][:ruby_version]}" do
   cwd         "/home/markus"
   user        "markus"
   group       "markus"
-  environment "PATH=" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin"
+  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH"
   command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
-  creates "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
+  creates     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
+  action      :run
 end
 
 bash "Extract markus source code" do
@@ -97,6 +98,7 @@ execute "Install Gemfile for markus" do
   cwd         "/home/markus/Markus-#{node[:markus][:version]}"
   user        "markus"
   group       "markus"
-  command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle install"
+  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH"
+  command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle install"
   action :run
 end
