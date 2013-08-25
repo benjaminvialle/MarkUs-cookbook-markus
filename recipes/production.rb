@@ -22,7 +22,7 @@ execute "Load schema in database" do
   group       "markus"
   environment "RAILS_ENV" => "production"
   command     "PATH=#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH #{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle exec rake db:schema:load"
-  action      :nothing
+  action      :run
 end
 
 directory "/home/markus/Markus-#{node[:markus][:version]}/tmp/log" do
