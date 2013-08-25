@@ -59,8 +59,8 @@ end
 
 template "/etc/init.d/markus" do
   source "markus_unicorn_init.erb"
-  owner "markus"
-  group "markus"
+  owner "root"
+  group "root"
   mode 0755
 end
 
