@@ -1,0 +1,141 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:       markus
+# Required-Start: $local_fs $syslog
+# Required-Stop:  $local_fs $syslog
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Short-Description: Unicorn for MarkUs
+### END INIT INFO
+
+export PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+NAME="MarkUs-<%= node[:markus][:version] %> (Unicorn)"
+
+ENV="production"
+TIMEOUT=${TIMEOUT-60}
+USER=markus
+DAEMON="<%= node[:markus][:ruby_path] %>/bin/unicorn"
+APP_ROOT=/home/markus/Markus-<%= node[:markus][:version] %>
+PID="${APP_ROOT}/tmp/pids/markus_unicorn.pid"
+
+CONFFILE=${APP_ROOT}/config/unicorn.rb
+CMD="<%= node[:markus][:ruby_path] %>/bin/bundle"
+OPTIONS="exec  <%= node[:markus][:ruby_path] %>/bin/unicorn -D -E $ENV -c $CONFFILE"
+RETVAL=0
+
+# source function library
+. /lib/lsb/init-functions
+
+# pull in default settings
+[ -f /etc/default/markus_unicorn ] && . /etc/default/markus_unicorn
+
+test -x $DAEMON || exit 0
+
+# Feel free to change any of the following variables for your app:
+
+old_pid="$PID.oldbin"
+
+cd $APP_ROOT || exit 1
+
+error () {
+  echo ""
+  echo $@
+  echo ""
+  exit 1
+}
+sig () {
+  test -s "$PID" && kill -$1 `cat $PID`
+}
+
+oldsig () {
+  test -s $old_pid && kill -$1 `cat $old_pid`
+}
+
+workersig () {
+  workerpid="${APP_ROOT}/tmp/pids/markus_unicorn.$2.pid"
+  test -s "$workerpid" && kill -$1 `cat $workerpid`
+}
+
+case $1 in
+  start)
+    sig 0 && echo >&2 "Already running" && exit 0
+    start-stop-daemon --start --chdir $APP_ROOT --chuid ${USER} --exec $CMD -- ${OPTIONS}
+    ;;
+  stop)
+    sig QUIT && exit 0
+    echo >&2 "Not running"
+    ;;
+  force-stop)
+    sig TERM && exit 0
+    echo >&2 "Not running"
+    ;;
+  restart|reload)
+    sig HUP && echo reloaded OK && exit 0
+    echo >&2 "Couldn't reload, starting '$CMD' instead"
+    start-stop-daemon --start --quiet --chdir ${APP_ROOT} --chuid ${USER} --exec "$CMD" -- ${OPTIONS}
+    ;;
+  upgrade)
+    sig 0 || { start-stop-daemon --start --quiet --chdir ${APP_ROOT} --chuid ${USER} --exec "$CMD" -- ${OPTIONS} && exit 0; }
+
+    echo "Upgrading ${NAME}"
+    sig USR2
+    sleep 2
+
+    echo -n "Waiting new master pid"
+    n=$TIMEOUT
+    while [ ! -s $PID ];do
+        printf '.'
+  n=$(( $n - 1 ))
+  test $n -lt 0 && error "I can't found new pidfile..."
+  sleep 1
+    done
+    echo ""
+
+    echo -n "Waiting for workers to spawn"
+    n=$TIMEOUT
+    while [ -s $PID -a $(ps --ppid  $(cat $PID) --no-headers|wc -l) -le 1 ];do
+        printf '.'
+  n=$(( $n - 1 ))
+  test $n -lt 0 && error "New workers not loaded"
+  sleep 1
+    done
+    echo ""
+
+    echo -n "New version loaded, kill old workers softly"
+    oldsig WINCH
+    # Wait for all workers to finish
+    n=$TIMEOUT
+    while [ $(ps --ppid  $(cat $old_pid) --no-headers|wc -l) -gt 1 ];do
+        printf '.'
+  n=$(( $n - 1 ))
+  test $n -lt 0 && error "old version not killed..."
+  sleep 1
+    done
+    echo ""
+
+    echo "Killing old master"
+    oldsig QUIT
+    n=$TIMEOUT
+    if test $n -lt 0 && test -s $old_pid
+    then
+        echo >&2 "$old_pid still exists after $TIMEOUT seconds"
+        exit 1
+    fi
+    echo "Upgrade successfull"
+    ;;
+
+  kill_worker)
+    workersig QUIT $2 && exit 0
+    echo >&2 "Worker not running"
+    ;;
+  rotate)
+    sig USR1 && echo rotated logs OK && exit 0
+    echo >&2 "Couldn't rotate logs" && exit 1
+    ;;
+  *)
+    echo >&2 "Usage: $0 <start|stop|restart|upgrade|rotate|force-stop>"
+    exit 1
+  ;;
+esac
