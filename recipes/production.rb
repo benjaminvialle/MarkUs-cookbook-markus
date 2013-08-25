@@ -28,7 +28,7 @@ end
 directory "/home/markus/Markus-#{node[:markus][:version]}/tmp/log" do
   owner "markus"
   group "markus"
-  mode 00644
+  mode 00755
   recursive true
   action :create
 end
@@ -36,7 +36,7 @@ end
 directory "/home/markus/Markus-#{node[:markus][:version]}/tmp/pids" do
   owner "markus"
   group "markus"
-  mode 00644
+  mode 00755
   recursive true
   action :create
 end
@@ -44,7 +44,7 @@ end
 directory "/home/markus/Markus-#{node[:markus][:version]}/tmp/sockets" do
   owner "markus"
   group "markus"
-  mode 00644
+  mode 00755
   recursive true
   action :create
 end
