@@ -79,7 +79,7 @@ execute "Install bundler for ruby #{node[:markus][:ruby_version]}" do
   user        "markus"
   group       "markus"
   environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:$PATH"
-  command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler"
+  command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler --no-rdoc --no-ri"
   creates     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
   action      :run
 end
