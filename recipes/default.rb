@@ -5,6 +5,15 @@
 # Copyright 2013, MarkUsProject
 #
 
+# installing ghostscript to convert PDF
+case node['platform']
+
+when "debian"
+  package "ghostscript" do
+    action :install
+  end
+end
+
 # installing ruby for user markus
 ruby_build_ruby "#{node[:markus][:ruby_version]}" do
   prefix_path "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}"
@@ -37,68 +46,4 @@ bash "Compile subversion #{node[:subversion][:version]} for user markus with rub
   EOH
   creates "#{node[:markus][:ruby_sitedir]}/1.9.1/svn/repos.rb"
   creates "#{node[:markus][:ruby_sitedir]}/1.9.1/svn/client.rb"
-end
-
-postgresql_connection_info = {:host => "localhost",
-                              :port => node['postgresql']['config']['port'],
-                              :username => 'postgres',
-                              :password => node['postgresql']['password']['postgres']}
-
-database_user 'markus' do
-  connection postgresql_connection_info
-  password 'markus'
-  provider Chef::Provider::Database::PostgresqlUser
-  action :create
-end
-
-database 'markus_production' do
-  connection postgresql_connection_info
-  provider Chef::Provider::Database::Postgresql
-  owner 'markus'
-  action :create
-end
-
-postgresql_database_user 'markus' do
-  connection postgresql_connection_info
-  database_name 'markus_production'
-  privileges [:all]
-  action :grant
-end
-
-# installing latest markus
-remote_file "/home/markus/markus-#{node[:markus][:version]}.tar.gz" do
-  source "https://github.com/MarkUsProject/Markus/archive/#{node[:markus][:version]}.tar.gz"
-  action :create_if_missing
-  checksum    node[:markus][:checksum] unless node[:markus][:version] == "master"
-  user        "markus"
-  group       "markus"
-end
-
-execute "Install bundler for ruby #{node[:markus][:ruby_version]}" do
-  cwd         "/home/markus"
-  user        "markus"
-  group       "markus"
-  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
-  command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/gem install bundler --no-rdoc --no-ri"
-  creates     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle"
-  action      :run
-end
-
-bash "Extract markus source code" do
-  cwd         "/home/markus"
-  user        "markus"
-  group       "markus"
-  code <<-EOH
-    tar xvzf markus-#{node[:markus][:version]}.tar.gz
-  EOH
-  creates "/home/markus/Markus-master/Gemfile"
-end
-
-execute "Install Gemfile for markus" do
-  cwd         "/home/markus/Markus-#{node[:markus][:version]}"
-  user        "markus"
-  group       "markus"
-  environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
-  command     "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin/bundle install"
-  action :run
 end
