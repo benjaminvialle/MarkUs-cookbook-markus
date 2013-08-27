@@ -1,23 +1,23 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:       markus
+# Provides:       <%= @instance %>
 # Required-Start: $local_fs $syslog
 # Required-Stop:  $local_fs $syslog
 # Default-Start:  2 3 4 5
 # Default-Stop:   0 1 6
-# Short-Description: Unicorn for MarkUs
+# Short-Description: Unicorn for MarkUs : <%= @instance %>
 ### END INIT INFO
 
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
-NAME="MarkUs-<%= node[:markus][:version] %> (Unicorn)"
+NAME="<%= @instance %> (Unicorn)"
 
 ENV="production"
 TIMEOUT=${TIMEOUT-60}
 USER=markus
 DAEMON="<%= node[:markus][:ruby_path] %>/<%= node[:markus][:ruby_version] %>/bin/unicorn"
-APP_ROOT=/home/markus/Markus-<%= node[:markus][:version] %>
+APP_ROOT=<%= @markus_path %>
 PID="${APP_ROOT}/tmp/pids/markus_unicorn.pid"
 
 CONFFILE=${APP_ROOT}/config/unicorn.rb
@@ -29,7 +29,7 @@ RETVAL=0
 . /lib/lsb/init-functions
 
 # pull in default settings
-[ -f /etc/default/markus_unicorn ] && . /etc/default/markus_unicorn
+[ -f /etc/default/<%= @instance %> ] && . /etc/default/<%= @instance %>
 
 test -x $DAEMON || exit 0
 

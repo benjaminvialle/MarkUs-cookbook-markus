@@ -65,13 +65,13 @@ search(:markus, '*:*') do |instance|
     group       "markus"
     code <<-EOH
     tar xvzf markus-#{instance['markus_version']}.tar.gz
-    cp -r Markus-#{instance['markus_version']} markus-#{instance['instance']}
+    cp -r Markus-#{instance['markus_version']} #{instance['instance']}
     EOH
-    creates "/home/markus/markus-#{instance['instance']}/Gemfile"
+    creates "/home/markus/#{instance['instance']}/Gemfile"
   end
 
   execute "Install Gemfile for markus" do
-    cwd         "/home/markus/markus-#{instance['instance']}"
+    cwd         "/home/markus/#{instance['instance']}"
     user        "markus"
     group       "markus"
     environment "PATH" => "#{node[:markus][:ruby_path]}/#{node[:markus][:ruby_version]}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
@@ -79,16 +79,16 @@ search(:markus, '*:*') do |instance|
     action :run
   end
 
-  template "/home/markus/markus-#{instance['instance']}/config/database.yml" do
+  template "/home/markus/#{instance['instance']}/config/database.yml" do
     source "database.postgresql.yml.erb"
     owner "markus"
     group "markus"
     mode 0600
-#############    variables
+    variables( :database => instance['database'], :username => instance['database_user'], :password => instance['database_password'] )
   end
 
   execute "Load schema in database" do
-    cwd         "/home/markus/markus-#{instance['instance']}"
+    cwd         "/home/markus/#{instance['instance']}"
     user        "markus"
     group       "markus"
     environment "RAILS_ENV" => "production"
@@ -96,7 +96,7 @@ search(:markus, '*:*') do |instance|
     action      :run
   end
 
-  directory "/home/markus/markus-#{instance['instance']}/tmp/log" do
+  directory "/home/markus/#{instance['instance']}/tmp/log" do
     owner "markus"
     group "markus"
     mode 00755
@@ -104,7 +104,7 @@ search(:markus, '*:*') do |instance|
     action :create
   end
 
-  directory "/home/markus/markus-#{instance['instance']}/tmp/pids" do
+  directory "/home/markus/#{instance['instance']}/tmp/pids" do
     owner "markus"
     group "markus"
     mode 00755
@@ -112,7 +112,7 @@ search(:markus, '*:*') do |instance|
     action :create
   end
 
-  directory "/home/markus/markus-#{instance['instance']}/tmp/sockets" do
+  directory "/home/markus/#{instance['instance']}/tmp/sockets" do
     owner "markus"
     group "markus"
     mode 00755
@@ -120,33 +120,35 @@ search(:markus, '*:*') do |instance|
     action :create
   end
 
-  template "/home/markus/markus-#{instance['instance']}/config/unicorn.rb" do
+  template "/home/markus/#{instance['instance']}/config/unicorn.rb" do
     source "unicorn.rb.erb"
     owner "markus"
     group "markus"
     mode 0600
-    variables(:markus_path => "/home/markus/markus-#{instance['instance']}")
+    variables(:markus_path => "/home/markus/#{instance['instance']}")
   end
 
-  template "/etc/init.d/markus-#{instance['instance']}" do
+  template "/etc/init.d/#{instance['instance']}" do
     source "markus_unicorn_init.erb"
     owner "root"
     group "root"
     mode 0755
+    variables(:markus_path => "/home/markus/#{instance['instance']}", :instance => instance['instance'])
   end
 
-  template "/etc/nginx/sites-available/markus-#{instance['instance']}" do
+  template "/etc/nginx/sites-available/#{instance['instance']}" do
     source "markus_nginx_site.erb"
     owner "root"
     group "root"
     mode 0600
+    variables(:markus_path => "/home/markus/#{instance['instance']}", :instance => instance['instance'], :domain => instance['domain'])
   end
 
   nginx_site 'default' do
     enable false
   end
 
-  nginx_site 'markus' do
+  nginx_site "instance['instance']" do
     enable true
   end
 
@@ -155,7 +157,7 @@ search(:markus, '*:*') do |instance|
     action :restart
   end
 
-  service "markus-#{instance['instance']}" do
+  service "#{instance['instance']}" do
     supports :status => true, :restart => true, :reload => true
     action :restart
   end

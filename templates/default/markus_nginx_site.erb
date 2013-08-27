@@ -1,11 +1,11 @@
 upstream markus_servers {
   # MarkUs unicorn application server
-  server unix:/home/markus/Markus-<%= node[:markus][:version] %>/tmp/sockets/markus_unicorn.sock fail_timeout=0;
+  server unix:<%= @markus_path %>/tmp/sockets/markus_unicorn.sock fail_timeout=0;
 }
 
 server {
     listen       80;
-    server_name  markus;
+    server_name  <%= @domain %>;
 
     #access_log  logs/host.access.log  main;
 
