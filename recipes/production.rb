@@ -95,6 +95,14 @@ search(:markus, '*:*') do |instance|
     variables( :time_zone => instance['time_zone'] )
   end
 
+  template "/home/markus/#{instance['instance']}/config/environments/production.rb" do
+    source "production.rb.erb"
+    owner "markus"
+    group "markus"
+    mode 0600
+    variables( :title => instance['title'], :pdf_support => instance['pdf_support'], :lang => instance['lang'])
+  end
+
   execute "Load schema in database" do
     cwd         "/home/markus/#{instance['instance']}"
     user        "markus"
