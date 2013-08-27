@@ -148,7 +148,7 @@ search(:markus, '*:*') do |instance|
     enable false
   end
 
-  nginx_site "instance['instance']" do
+  nginx_site "#{instance['instance']}" do
     enable true
   end
 
