@@ -1,4 +1,4 @@
-upstream markus_servers {
+upstream <%= @instance %>_servers {
   # MarkUs unicorn application server
   server unix:<%= @markus_path %>/tmp/sockets/markus_unicorn.sock fail_timeout=0;
 }
@@ -43,6 +43,6 @@ server {
       # Set max upload file size
       client_max_body_size 1g;
 
-      proxy_pass http://markus_servers;
+      proxy_pass http://<%= @instance %>_servers;
     }
 }
