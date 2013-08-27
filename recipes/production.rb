@@ -87,6 +87,14 @@ search(:markus, '*:*') do |instance|
     variables( :database => instance['database'], :username => instance['database_user'], :password => instance['database_password'] )
   end
 
+  template "/home/markus/#{instance['instance']}/config/application.rb" do
+    source "application.rb.erb"
+    owner "markus"
+    group "markus"
+    mode 0600
+    variables( :time_zone => instance['time_zone'] )
+  end
+
   execute "Load schema in database" do
     cwd         "/home/markus/#{instance['instance']}"
     user        "markus"
