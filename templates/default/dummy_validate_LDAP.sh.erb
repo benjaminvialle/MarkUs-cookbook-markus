@@ -25,7 +25,7 @@ read password
 # Do your password validation here
 ########################################################################
 
-printf "$user\n$password\n"  | <=% @ldap_auth_path %> && exit 0  || exit 1
+printf "$user\n$password\n"  | <%= @ldap_auth_path %> && exit 0  || exit 1
 # Exit with 0 return code, if and only if user/password combination
 # is valid
 # exit 0
