@@ -59,7 +59,7 @@ search(:markus, '*:*') do |instance|
     action      :run
   end
 
-  bash "Extract markus source code" do
+  bash "Extract markus source code for instance #{instance['instance']}" do
     cwd         "/home/markus"
     user        "markus"
     group       "markus"
@@ -70,7 +70,7 @@ search(:markus, '*:*') do |instance|
     creates "/home/markus/#{instance['instance']}/Gemfile"
   end
 
-  execute "Install Gemfile for markus" do
+  execute "Install Gemfile for markus for #{instance['instance']}" do
     cwd         "/home/markus/#{instance['instance']}"
     user        "markus"
     group       "markus"
@@ -175,7 +175,7 @@ search(:markus, '*:*') do |instance|
 
   service "#{instance['instance']}" do
     supports :status => true, :restart => true, :reload => true
-    action :restart
+    action [:enable, :restart]
   end
 
 end
