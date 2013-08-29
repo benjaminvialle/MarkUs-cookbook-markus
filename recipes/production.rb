@@ -103,7 +103,7 @@ search(:markus, '*:*') do |instance|
     variables( :title => instance['title'], :pdf_support => instance['pdf_support'], :lang => instance['lang'])
   end
 
-  execute "Load schema in database" do
+  execute "Load schema in database for instance #{instance['instance']}" do
     cwd         "/home/markus/#{instance['instance']}"
     user        "markus"
     group       "markus"
