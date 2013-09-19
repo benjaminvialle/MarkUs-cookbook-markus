@@ -27,6 +27,7 @@ database 'markus_development' do
   provider Chef::Provider::Database::Postgresql
   owner 'markus'
   action :create
+  privileges :all
 end
 
 database 'markus_test' do
