@@ -22,12 +22,19 @@ database_user 'markus' do
   action :create
 end
 
+bash "ALTER USER markus WITH SUPERUSER" do
+  user 'postgres'
+  code <<-EOH
+echo "ALTER ROLE markus WITH SUPERUSER;" | psql
+  EOH
+  action :run
+end
+
 database 'markus_development' do
   connection postgresql_connection_info
   provider Chef::Provider::Database::Postgresql
   owner 'markus'
   action :create
-  privileges :all
 end
 
 database 'markus_test' do
