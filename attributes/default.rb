@@ -13,6 +13,6 @@
 #
 default[:markus][:version]            = "master"
 default[:markus][:checksum]           = ""
-default[:markus][:ruby_version]       = "1.9.3-p448"
+default[:markus][:ruby_version]       = "1.9.3-p484"
 default[:markus][:ruby_path]          = "/home/markus/.rubies"
 default[:markus][:ruby_sitedir]       = "/home/markus/.rubies/#{node[:markus][:ruby_version]}/lib/ruby/site_ruby"
